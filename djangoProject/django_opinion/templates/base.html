@@ -1,0 +1,23 @@
+{% load staticfiles %}
+<html>
+<head>
+    <title>{% block title %}{% endblock %}</title> 
+    <link rel="stylesheet" type="text/css" href="{% static 'opinion/style.css' %}" 
+</head>
+<body>
+<div id="top">
+    <img width="50" src="{% static "opinion/images/logo.jpg" %}" alt="로고"/>
+    <a href="/">FRAMEWORK・DJANGO練習サイト</a>　
+
+    {% if session %}{{session.user_nickname}} 접속중 <a href="/logout">logout</a> / <a href="/write">write</a> / 
+    {% else %}<a href="/login">login</a> / <a href="/register">register</a> / {% endif %}
+    <a href="/view">list</a>
+</div>
+{% if return_msg %}<div class='return_msg return_msg_{{ return_msg.type }}'>{{ return_msg.msg }}</div>{% endif %}
+<div id="bottom">
+    
+    {% block contents %}{% endblock %}
+
+</div>
+</body>
+</html>
