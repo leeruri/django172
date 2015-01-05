@@ -4,49 +4,50 @@
 
 {% block contents %}  
     <table class="opinionTable" width="500">
-        {% if linked_parent_opinion %}<tr><td class="linkedOpinion">· <a href="/view/no/{{ linked_parent_opinion.id }}">{{ linked_parent_opinion.opinion_title}}</a> 주제에 관한 글입니다. </td></tr>{% endif %} 
-        <tr><td class="regdate">[{{ opinion.reg_date | date:"o M d" }}]</td></tr>
+        {% if linked_parent_opinion %}<tr><td class="linkedOpinion">· <a href="/view/no/{{ linked_parent_opinion.id }}">{{ linked_parent_opinion.opinion_title}}</a> 에 관한 글입니다. </td></tr>{% endif %} 
+        <tr><td class="regdate"><span class="tags">{% autoescape off %}{{ opinion.tag_name }}{% endautoescape %}</span>[{{ opinion.reg_date | date:"o M d" }}]</td></tr>
         <tr><td class="title">{{ opinion.opinion_title }}</td></tr>
         <tr><td class="writer"><i>{% autoescape off %}{{ opinion.nickname}}{% endautoescape %}</i></td></tr>
         <tr><td class="contents">{{ opinion.opinion_contents | linebreaks}}</td></tr>
-        <tr><td class="ip">{{ opinion.ip_address }}</td></tr>
-        <tr><td class="tags">{% autoescape off %}{{ opinion.tag_name }}{% endautoescape %}</td></tr>
-        <tr><td class="link"><a href="/link/{{ opinion.id }}">이 주제에 대한 글 작성하기</a></tr></td>
+        <tr><td class="ip">{{ opinion.ip_address }}</td></tr> 
+        <tr><td class="link"><a href="/link/{{ opinion.id }}/">이 주제에 대한 글 작성하기</a></tr></td>
     </table>      
 
     {% if linkedOpinions %}
-        <table class="listTable">
+        이 주제에 관해 작성된 글
+        <table class="listTable" width="500" style="table-layout:fixed;word-break:break-all">
         <tr> 
-            <th>title</th>
-            <th>ㅇ</th> 
+            <th width="100">작성자</th> 
+            <th width="300">타이틀</th>
+            <th width="100">날짜</th>
         </tr>
         {% for opinion in linkedOpinions %}
         <tr> 
         {% autoescape off %}
-        <td><a href="/view/no/{{ opinion.id }}">{{ opinion.opinion_title}}</a></td> 
         <td>{{ opinion.writer }}</td>
         {% endautoescape %}
+        <td><nowrap><a href="/view/no/{{ opinion.id }}/">{{ opinion.opinion_title}}</a></nowrap></td> 
+        <td>{{ opinion.reg_date | date:"o M d"}}</td> 
         </tr>
         {% endfor %}
         </table>
     {% endif %}
 
     {% if comments %}
-        <table class="listTable ">
+        코멘트
+        <table class="listTable"  width="500" style="table-layout:fixed;word-break:break-all">
         <tr> 
-            <th>작성자</th>
-            <th>코멘트</th> 
-            <th>날짜</th> 
-            <th>ip</th> 
+            <th width="100">작성자</th>
+            <th width="300">코멘트</th> 
+            <th width="100">날짜</th>  
         </tr>
         {% for comment in comments %}
         <tr> 
         {% autoescape off %}
         <td>{{ comment.writer}}</td>
         {% endautoescape %}
-        <td>{{ comment.comment_contents}}</td>
-        <td>{{ comment.reg_date | date:"o M d"}}</td>
-        <td>{{ comment.ip_address}}</td>
+        <td><nowrap>{{ comment.comment_contents}}</nowrap></td>
+        <td>{{ comment.reg_date | date:"o M d"}}</td> 
         </tr>
         {% endfor %}
         </table>
@@ -54,9 +55,9 @@
 
     <form action="/writeComment" method="POST">
         {% csrf_token %}
-        <table class="commentFormTable">
+        <table class="commentFormTable" >
         {{ commentForm }}
         </table>
-        <input type="submit" />
+        <input type="submit" value="Submit" />
     </form>
 {% endblock %}

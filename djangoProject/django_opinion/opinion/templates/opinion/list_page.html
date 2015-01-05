@@ -14,7 +14,7 @@
 {% for opinion in opinions %}
 <tr>
 <td>{{ opinion.id}}</td>
-<td><a href="/view/no/{{opinion.id}}">{{ opinion.opinion_title}}
+<td><a href="/view/no/{{opinion.id}}/">{{ opinion.opinion_title}}
     {% if opinion.comment_count > 0 %} [{{ opinion.comment_count }}] {% endif %}
 </a>
 </td>

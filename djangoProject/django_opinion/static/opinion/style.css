@@ -23,8 +23,8 @@ a:active{color: #FF5500; }
 .opinionTable .writer{text-align: right; padding-bottom: 10px; }
 .opinionTable .contents{padding: 10px; padding-bottom: 40px; border-top: 1px solid #CCCCCC; border-bottom: 1px solid #CCCCCC; }
 .opinionTable .regdate{color: #AAAAAA; font-size: 12px; }
-.opinionTable .tags{padding: 10px; color: #0000FF; font-size: 12px; }
-.opinionTable .tags a{color: blue; font-weight: 100;}
+.opinionTable .regdate .tags{padding: 10px; color: #0000FF; font-size: 12px; }
+.opinionTable .regdate .tags a{color: blue; font-weight: 100;}
 .opinionTable .link{padding: 10px; font-size: 12px; text-align: right; }
 .opinionTable .linkedOpinion{padding: 10px; border-bottom: 2px dotted #EEEEEE; font-weight: 900; }
 .opinionTable .link{padding: 10px; font-size: 12px; text-align: right; }

@@ -1,9 +1,9 @@
 #-*- coding: utf-8 -*-
 from django.db import models
-from django.forms import ModelForm
+from django.forms import ModelForm, Textarea
 from django.utils import timezone
 from django.forms.fields import CharField
-from django.forms.widgets import HiddenInput, TextInput
+from django.forms.widgets import HiddenInput, TextInput, PasswordInput
 
 class OpinionUser(models.Model):
     AREA = (
@@ -12,11 +12,11 @@ class OpinionUser(models.Model):
         ('N', '기타'),
         )
 
-    user_email = models.EmailField(unique=True, help_text="your email adress") 
-    user_nickname =  models.CharField(max_length=50)
-    user_pwd = models.CharField(max_length=50)
-    user_url = models.URLField(blank=True, null=True)
-    user_area = models.CharField(max_length=1, choices=AREA, blank=True)
+    user_email = models.EmailField('Email', unique=True) 
+    user_nickname =  models.CharField('Nickname',max_length=50)
+    user_pwd = models.CharField('Password', max_length=50)
+    user_url = models.URLField('Homepage', blank=True, null=True)
+    user_area = models.CharField('Area', max_length=1, choices=AREA, blank=True)
 
     ip_address = models.GenericIPAddressField(unpack_ipv4=True, blank=True, null=True)
     reg_date = models.DateTimeField(default=None)
@@ -27,15 +27,13 @@ class OpinionUser(models.Model):
         super(OpinionUser, self).save(*args, **kwargs)
  
     def __unicode__(self):           
-        return self.user_nickname
-
-    def getLinkText(self):
-        return "<a href=''>"+self.user_nickname+"</a>"
+        return self.user_nickname 
 
     class Meta:
         ordering = ["-id"]
 
 class OpinionUserForm(ModelForm):
+    user_pwd = CharField(widget=PasswordInput)
     class Meta:
         model = OpinionUser
         fields = ['user_email', 'user_nickname', 'user_pwd', 'user_url', 'user_area']
@@ -68,11 +66,11 @@ class TagForm(ModelForm):
 
 
 class Opinion(models.Model): #수정한 내용에 대하여 이력을 모두 표시한다.
-    opinion_title =  models.CharField(max_length=250)
-    opinion_contents = models.TextField()
+    opinion_title =  models.CharField('Title', max_length=250)
+    opinion_contents = models.TextField('Contents')
     writer_id = models.CharField(max_length=10, blank=True) #ForienKey OpinionUser
     linked_opinion_id = models.CharField(max_length=10, blank=True, null=True) #ForienKey Opinion
-    tag_name = models.CharField(max_length=20, blank=True, null=True)
+    tag_name = models.CharField('tag', max_length=20, blank=True, null=True)
 
     ip_address = models.GenericIPAddressField(unpack_ipv4=True, blank=True, null=True)
     reg_date = models.DateTimeField(default=None)
@@ -83,10 +81,7 @@ class Opinion(models.Model): #수정한 내용에 대하여 이력을 모두 표
         super(Opinion, self).save(*args, **kwargs)
 
     def __unicode__(self):           
-        return self.opinion_title
-
-    def getLinkText(self):
-        return "<a href='/view/no/"+self.id+"'>"+self.opinion_title+"</a>"
+        return self.opinion_title 
 
     class Meta:
         ordering = ["-id"]
@@ -102,7 +97,7 @@ class OpinionForm(ModelForm):
         fields = ['opinion_title', 'opinion_contents', 'writer_id', 'linked_opinion_id', 'tag_name'] 
 
 class Comment(models.Model): #수정한 내용에 대하여 이력을 모두 표시한다.
-    comment_contents = models.TextField()
+    comment_contents = models.TextField('comment')
     writer_id = models.CharField(max_length=10, blank=True) #ForienKey OpinionUser
     opinion_id = models.CharField(max_length=10, blank=True) #ForienKey Opinion
      
@@ -115,10 +110,10 @@ class Comment(models.Model): #수정한 내용에 대하여 이력을 모두 표
         super(Comment, self).save(*args, **kwargs)
 
     def __unicode__(self):           
-        return self.comment_contents
+        return self.comment_contents 
 
     class Meta:
-        ordering = ["-id"]
+        ordering = ["id"]
  
 class CommentForm(ModelForm):
     writer_id = CharField(widget=HiddenInput) 
@@ -126,3 +121,6 @@ class CommentForm(ModelForm):
     class Meta:
         model = Comment
         fields = ['comment_contents', 'writer_id', 'opinion_id']
+        widgets = {
+        'comment_contents' : Textarea(attrs={'cols' : 45, 'rows' : 4}),
+        }

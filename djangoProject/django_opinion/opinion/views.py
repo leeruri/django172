@@ -21,12 +21,12 @@ def login_page(request):
 			request.session['user_email'] = p_user_email
 			request.session['user_id'] = f_opinion_user[0].id
 			request.session['user_nickname'] = f_opinion_user[0].user_nickname
-			context = {'return_msg' : {'type':'info', 'msg':'register success. '}}
+			context = {'return_msg' : {'type':'info', 'msg':'hello '+f_opinion_user[0].user_nickname}}
 			return views_render(request, 'opinion/main_page.html', context)
 		else:
 			form = OpinionUserLoginForm()
 			context ={
-			'return_msg' : 'Please check your Email/Password. ',
+			'return_msg' : {'type':'warning', 'msg':'Please check your Email/Password.'},
 			'form' : form,
 			}
 			return views_render(request, 'opinion/login_page.html', context)			
@@ -70,12 +70,13 @@ def write_page(request):
 def write_page_query_no(request, query):
 	if request.method == 'GET':
 		linked_opinion = Opinion.objects.get(id=query)
+		print linked_opinion
 		if linked_opinion:
 			opinion = Opinion(linked_opinion_id=linked_opinion.id, writer_id=request.session['user_id'])
 			form = OpinionForm(instance=opinion)
 			context = {
 			'form' : form,
-			'return_msg' : u'〔'+linked_opinion.opinion_title+u'〕주제에 관해 작성하는 글입니다.',
+			'return_msg' : {'type':'link', 'msg': u'〔'+linked_opinion.opinion_title+u'〕주제에 관해 작성하는 글입니다.'},
 			}
 			return views_render(request, 'opinion/write_page.html', context)
 
@@ -103,7 +104,7 @@ def register_page(request):
 		p_user_email = request.POST['user_email']	 
 		if len(OpinionUser.objects.filter(user_email=p_user_email)) > 0 :
 			context = {
-			'return_msg' : 'already registerd user',
+			'return_msg' :  {'type':'warning', 'msg':'already registerd user'},
 			'form' : OpinionUserForm(),
 			}
 			return views_render(request, 'opinion/register_page.html', context)
@@ -115,13 +116,13 @@ def register_page(request):
 				user.save() 
 				form = OpinionUserLoginForm()
 				context = {
-					'return_msg' : 'register success. ',
+					'return_msg' : {'type':'info', 'msg':'register success.'},
 					'form' : form,
 				}
 				return views_render(request, 'opinion/login_page.html', context) 
 			else :
 				context = {
-					'return_msg' : 'Please check this form ',
+					'return_msg' :  {'type':'warning', 'msg':'Please check this form.'},
 					'form' : form,
 				}
 				return views_render(request, 'opinion/register_page.html', context)
@@ -138,13 +139,14 @@ def view_page(request):
 	for opinion in opinions:
 		opinion.comment_count = len(Comment.objects.filter(opinion_id=opinion.id))
 		opinion.linked_opinion_count = len(Opinion.objects.filter(linked_opinion_id=opinion.id))
-		opinion.nickname = OpinionUser.objects.get(id=opinion.writer_id).getLinkText()
+		opinion.nickname = nicknameLink(opinion.writer_id)
 	context = {'opinions' : opinions }
 	return views_render(request, 'opinion/list_page.html', context)
 
 def view_page_query_no(request, query): 
 	obj = Opinion.objects.get(id=query) 
-	obj.nickname = OpinionUser.objects.get(id=obj.writer_id).getLinkText()
+	obj.nickname = nicknameLink(obj.writer_id)
+	obj.tag_name = tagLink(obj.tag_name)
 	linked_opinion_id = 0
 	if obj.linked_opinion_id:
 		linked_opinion_id = obj.linked_opinion_id
@@ -160,11 +162,11 @@ def view_page_query_no(request, query):
 		} 
 		if len(linked_opinion_list) > 0:
 			for linked_opinion in linked_opinion_list :
-				linked_opinion.writer = OpinionUser.objects.get(id=linked_opinion.writer_id).getLinkText() 
+				linked_opinion.writer = nicknameLink(linked_opinion.writer_id)
 			context['linkedOpinions'] = linked_opinion_list
 		if len(opinion_comment_list) > 0:
 			for opinion_comment in opinion_comment_list :
-				opinion_comment.writer = OpinionUser.objects.get(id=opinion_comment.writer_id).getLinkText()
+				opinion_comment.writer = nicknameLink(opinion_comment.writer_id)
 			context['comments'] = opinion_comment_list
 		if len(linked_parent_opinion) == 1:
 			context['linked_parent_opinion'] = linked_parent_opinion[0]
@@ -181,7 +183,7 @@ def view_page_query_tag(request, query):
 	for opinion in opinions:
 		opinion.comment_count = len(Comment.objects.filter(opinion_id=opinion.id))
 		opinion.linked_opinion_count = len(Opinion.objects.filter(linked_opinion_id=opinion.id))
-		opinion.nickname = OpinionUser.objects.get(id=opinion.writer_id).getLinkText()
+		opinion.nickname = nicknameLink(opinion.writer_id)
 	context = {'opinions' : opinions }
 	return views_render(request, 'opinion/list_page.html', context)
 
@@ -194,18 +196,24 @@ def write_comment(request):
 			comment.ip_address = get_client_ip(request)
 			comment.save()
 			return  view_page_query_no(request, request.POST['opinion_id'])
-		else:
+		else: 
 			obj = Opinion.objects.get(id=request.POST['opinion_id'])
 			linked_opinion_list = Opinion.objects.filter(linked_opinion_id=request.POST['opinion_id']) 
 			opinion_comment_list = Comment.objects.filter(opinion_id=request.POST['opinion_id']) 
+			obj.nickname = nicknameLink(obj.writer_id)
+			obj.tag_name = tagLink(obj.tag_name)
 			if obj:
 				context = {
 				'opinion' : obj,
 				'commentForm' : commentForm,
 				} 
 				if len(linked_opinion_list) > 0:
+					for linked_opinion in linked_opinion_list :
+						linked_opinion.writer = nicknameLink(linked_opinion.writer_id)
 					context['linkedOpinions'] = linked_opinion_list
 				if len(opinion_comment_list) > 0:
+					for opinion_comment in opinion_comment_list :
+						opinion_comment.writer = nicknameLink(opinion_comment.writer_id)
 					context['comments'] = opinion_comment_list
 				return views_render(request, 'opinion/view_page.html', context)
 			else:
@@ -214,6 +222,15 @@ def write_comment(request):
 				}	
 				return views_render(request, 'opinion/list_page.html', context) 
 
+def nicknameLink(user_id):
+	if user_id == None:
+		return
+	opinionUser = OpinionUser.objects.get(id=user_id)
+	return "<a href='/user/"+str(opinionUser.id)+"/'>"+opinionUser.user_nickname+"</a>"
+def tagLink(tag):
+	if tag == None:
+		return
+	return "<a href='/view/tag/"+tag+"/'>"+tag+"</a>"
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')

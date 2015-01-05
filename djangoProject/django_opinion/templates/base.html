@@ -9,9 +9,9 @@
     <img width="50" src="{% static "opinion/images/logo.jpg" %}" alt="로고"/>
     <a href="/">FRAMEWORK・DJANGO練習サイト</a>　
 
-    {% if session %}{{session.user_nickname}} 접속중 <a href="/logout">logout</a> / <a href="/write">write</a> / 
-    {% else %}<a href="/login">login</a> / <a href="/register">register</a> / {% endif %}
-    <a href="/view">list</a>
+    {% if session %}<span style="color:white">{{session.user_nickname}} 접속 <span>  <a href="/logout/">로그아웃</a> / <a href="/write">새로작성</a> / 
+    {% else %}<a href="/login/">로그인</a> / <a href="/register/">가입하기</a> / {% endif %}
+    <a href="/view/">리스트</a>
 </div>
 {% if return_msg %}<div class='return_msg return_msg_{{ return_msg.type }}'>{{ return_msg.msg }}</div>{% endif %}
 <div id="bottom">
