@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
 from django.db import models
-from django.forms import ModelForm, Textarea
+from django.forms import ModelForm, Textarea, TextInput
 from django.utils import timezone
 from django.forms.fields import CharField
 from django.forms.widgets import HiddenInput, TextInput, PasswordInput
@@ -39,6 +39,7 @@ class OpinionUserForm(ModelForm):
         fields = ['user_email', 'user_nickname', 'user_pwd', 'user_url', 'user_area']
 
 class OpinionUserLoginForm(ModelForm):
+    user_pwd = CharField(widget=PasswordInput)
     class Meta:
         model = OpinionUser
         fields = ['user_email', 'user_pwd']
@@ -89,12 +90,16 @@ class Opinion(models.Model): #수정한 내용에 대하여 이력을 모두 표
 
 class OpinionForm(ModelForm): 
     writer_id = CharField(widget=HiddenInput) 
-    linked_opinion_id = CharField(widget=HiddenInput, required=False) 
-    tag_name = CharField(widget=TextInput)
+    linked_opinion_id = CharField(widget=HiddenInput, required=False)  
 
     class Meta:
         model = Opinion
-        fields = ['opinion_title', 'opinion_contents', 'writer_id', 'linked_opinion_id', 'tag_name'] 
+        fields = ['opinion_title', 'opinion_contents', 'writer_id', 'linked_opinion_id', 'tag_name']
+        widgets = {
+        'opinion_title' : TextInput(attrs={'size' : 50}),
+        'opinion_contents' : Textarea(attrs={'cols' : 50, 'rows' : 20}),
+        'tag_name' : TextInput(attrs={'size' : 30}),
+        } 
 
 class Comment(models.Model): #수정한 내용에 대하여 이력을 모두 표시한다.
     comment_contents = models.TextField('comment')
@@ -122,5 +127,5 @@ class CommentForm(ModelForm):
         model = Comment
         fields = ['comment_contents', 'writer_id', 'opinion_id']
         widgets = {
-        'comment_contents' : Textarea(attrs={'cols' : 45, 'rows' : 4}),
-        }
+        'comment_contents' : Textarea(attrs={'cols' : 50, 'rows' : 4}),  
+        } 
